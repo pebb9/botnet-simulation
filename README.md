@@ -28,7 +28,7 @@ The basic architecture consists of:
 1. Clone this repository to your local machine:
 
    ```bash
-   git clone https://github.com/your-username/botnet-simulation.git
+   git clone https://github.com/pebb9/botnet-simulation.git
    cd botnet-simulation
    ```
 
