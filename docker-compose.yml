@@ -5,10 +5,16 @@ services:
     container_name: cc_server
     ports:
       - "5000:5000"
+    tty: true
+    stdin_open: true
     networks:
       - botnet
   bot:
     build: ./bot
+    depends_on:
+      - cc_server
+    tty: true
+    stdin_open: true
     networks:
       - botnet
 
