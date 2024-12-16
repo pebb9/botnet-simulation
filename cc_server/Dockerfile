@@ -3,4 +3,3 @@ WORKDIR /app
 COPY server.py /app/
 RUN pip install flask
 CMD ["python3", "server.py"]
-

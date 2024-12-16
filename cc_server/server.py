@@ -23,6 +23,7 @@ def send_command():
     bot_id = request.args.get("bot_id")
     if bot_id in active_bots:
         return jsonify({"command": "update a file", "details": "Append a new log entry"}), 200
+    
     elif bot_id in registered_bots and bot_id not in active_bots:
         # If bot is inactive, responds "inactive"
         return jsonify({"command": "inactive"}), 200
@@ -38,7 +39,11 @@ def activate_next_bot():
                 active_bots.append(bot)
                 print(f"Bot {bot} activated by {bot_id}.")
                 return jsonify({"status": "next_bot_activated", "activated_bot": bot}), 200
-        return jsonify({"status": "no_more_bots"}), 200
+        
+        # No more bots registered
+        if len(registered_bots) == len(active_bots):
+            return jsonify({"status": "no_more_bots"}), 200
+        
     return jsonify({"status": "not_authorized"}), 403
 
 if __name__ == '__main__':
