@@ -10,13 +10,6 @@ def create_botnet_file():
     
     bot_id = os.getenv("HOSTNAME")
     
-    with open("/app/botnet.md", "w") as f:
-        f.write("# Botnet Active\n")
-        f.write("This bot is now part of the botnet network.\n")
-        f.write(f"Bot ID: {bot_id}\n")
-        
-    print(f"Bot {bot_id} created its botnet.md file.")
-    
     # Register bot in C&C server
     try:
         response = requests.post(f"{SERVER_URL}/register", json={"bot_id": bot_id})
@@ -27,12 +20,22 @@ def create_botnet_file():
             print(f"Failed to register bot {bot_id}. Status code: {response.status_code}")
     except Exception as e:
         print(f"Error registering bot: {e}")
+    
+    with open("/app/botnet.md", "w") as f:
+        f.write("# Botnet Active\n")
+        f.write("This bot is now part of the botnet network.\n")
+        f.write(f"Bot ID: {bot_id}\n")
+        
+    print(f"Bot {bot_id} created its botnet.md file.")
 
 def execute_command(command):
     if command == "update a file":
         with open("/app/botnet.md", "a") as f:
             f.write("New log entry added to botnet.md\n")
         print(f"Bot {os.getenv('HOSTNAME')} updated botnet.md with a new log entry.")
+        
+        # Activate next bot 
+        activate_next()
     elif command == "inactive":
         print(f"Bot {os.getenv('HOSTNAME')} is inactive, waiting for activation.")
 
@@ -67,14 +70,10 @@ def main():
             if response.status_code == 200:
                 command = response.json().get("command", "fail")
                 execute_command(command)
-                # If bot is active, activate the next one
-                if command == "update a file":
-                    activate_next()
             else:
                 print(f"Bot {bot_id} failed to fetch command from C&C server.")
         except Exception as e:
             print(f"Bot {bot_id} Error connecting to C&C server: {e}")
-        time.sleep(5)  # 5 second cooldown
 
 if __name__ == "__main__":
     main()
