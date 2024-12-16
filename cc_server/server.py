@@ -1,17 +1,17 @@
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
-registered_bots = []  # Lista de bots registrados
-active_bots = []      # Lista de bots activos
+registered_bots = []
+active_bots = []
 
 @app.route('/register', methods=['POST'])
 def register_bot():
-    """Registra un bot con su ID."""
     bot_id = request.json.get("bot_id")
     if bot_id and bot_id not in registered_bots:
         registered_bots.append(bot_id)
         print(f"Bot {bot_id} registered.")
-        # Activar el primer bot registrado automáticamente
+        
+        # Activate firts bot
         if len(active_bots) == 0:
             active_bots.append(bot_id)
             print(f"Bot {bot_id} activated as the first bot.")
@@ -20,21 +20,19 @@ def register_bot():
 
 @app.route('/command', methods=['GET'])
 def send_command():
-    """Envía comandos específicos a los bots."""
     bot_id = request.args.get("bot_id")
     if bot_id in active_bots:
-        return jsonify({"command": "Update botnet.md", "details": "Append a new log entry"}), 200
+        return jsonify({"command": "update a file", "details": "Append a new log entry"}), 200
     elif bot_id in registered_bots and bot_id not in active_bots:
-        # Si el bot no está activo, responde con "inactive"
+        # If bot is inactive, responds "inactive"
         return jsonify({"command": "inactive"}), 200
-    return jsonify({"command": "No Command"}), 200
+    return jsonify({"command": "fail"}), 200
 
 @app.route('/activate_next', methods=['POST'])
 def activate_next_bot():
-    """Activa el siguiente bot registrado."""
     bot_id = request.json.get("bot_id")
     if bot_id in active_bots:
-        # Buscar un bot inactivo para activar
+        # Search an inactive bot
         for bot in registered_bots:
             if bot not in active_bots:
                 active_bots.append(bot)
