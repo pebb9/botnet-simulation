@@ -1,22 +1,33 @@
 # Botnet Simulation with Docker
 
-This project simulates a botnet using Docker and Flask. Each bot connects to a C&C (Command and Control) server, receives commands, and executes actions such as updating a `botnet.md` file. The main goal of this project is to understand how botnets operate and how to simulate their behavior in a controlled environment.
+This project simulates a botnet using Docker and Flask. Each bot connects to a C&C (Command and Control) server, registers itself, and activates other bots dynamically, emulating how botnets propagate in real scenarios. The main goal of this project is to understand how botnets operate and how to simulate their behavior in a controlled environment.
 
 ## Project Components
 
 This project consists of two main services:
 
-1. **C&C Server (Command and Control)**: A Flask server that sends commands to the bots.
-2. **Bots**: Bot instances that connect to the C&C server, receive commands, and execute them.
+1. **C&C Server (Command and Control)**: A Flask server that registers bots, sends commands, and manages their activation.
+2. **Bots**: Bot instances that:
 
-## Architecture
+   - Register with the C&C server.
+   - Execute commands (in this case, update a file) when activated.
+   - Dynamically activate other bots.
 
-The project is based on Docker Compose, which allows you to spin up multiple containers simulating the bots and the C&C server on a network.
+## Architecture (Hybrid Model)
 
-The basic architecture consists of:
+The botnet simulation uses a hybrid architecture that combines centralized and decentralized models:
 
-- **cc_server**: The C&C server that manages the bots.
-- **bot**: The bots that connect to the server and receive commands.
+1. **Centralized Control**:
+
+   - The C&C (Command and Control) server acts as the central authority, managing the registration of bots and issuing commands.
+   - Bots initially connect to the C&C server to register and receive commands.
+
+2. **Dynamic Activation (Decentralized Propagation)**:
+
+   - After the first bot is activated, it dynamically propagates the activation process to other bots.
+   - Each active bot contacts the C&C server to activate the next inactive bot in the sequence.
+
+This hybrid approach emulates real-world botnets that use centralized control for initial coordination and decentralized propagation to increase resilience and scalability.
 
 ## Requirements
 
@@ -42,16 +53,27 @@ The basic architecture consists of:
 
 ## How It Works
 
-- **C&C Server**: When the containers are started, the C&C server will start listening on port 5000.
-- **Bots**: The bots will automatically register with the C&C server and receive a dynamic command to update a file named `botnet.md`.
-- **botnet.md** File: This file is created or updated in the bot containers, with entries like "Bot X added a log entry".
+1. **C&C Server Initialization**:
+
+   - The server starts on port 5000.
+   - Bots communicate with the server through the `/register` and `/command` endpoints.
+
+2. **Bot Registration and Activation**:
+
+   - Each bot registers itself upon startup and receives a "registration success" confirmation.
+   - The first bot becomes active immediately and starts activating the other bots sequentially.
+
+3. **Bot Activation Propagation**:
+
+   - An active bot will send a request to the server to activate the next inactive bot.
+   - This process continues until all bots are activated.
 
 ## Automated Commands
 
-The bots will automatically receive the following command upon registration:
+The activated bots will automatically receive the following command upon registration:
 
 ```
-Update botnet.md
+update a file
 ```
 
 This command causes each bot to add a line to the `botnet.md` file with its container ID.
